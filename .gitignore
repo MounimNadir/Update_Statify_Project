@@ -1,0 +1,17 @@
+# Environments
+venv/
+.venv/
+env/
+Pipfile.lock
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Frontend
+node_modules/
+.env
