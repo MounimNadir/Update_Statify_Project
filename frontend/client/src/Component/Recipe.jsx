@@ -1,12 +1,13 @@
 import React from 'react';
-import {Card} from 'react-bootstrap';
+import { Card, Button } from 'react-bootstrap';
 
-const Recipe=({title,description})=>{
-    return(
-        <Card className="recipe">
+const Recipe = ({ title, description, onClick }) => {
+    return (
+        <Card className="recipe" style={{ marginBottom: '20px' }}>
             <Card.Body>
                 <Card.Title>{title}</Card.Title>
-                <p>{description}</p>
+                <Card.Text>{description}</Card.Text>
+                <Button variant="primary" onClick={onClick}>Edit Recipe</Button>
             </Card.Body>
         </Card>
     )

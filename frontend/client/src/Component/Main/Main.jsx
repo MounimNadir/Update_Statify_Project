@@ -14,38 +14,146 @@ import teamMember3 from '../../Assests/images (3).jpeg'; // Replace with your ac
 import teamMember4 from '../../Assests/images (3).jpeg'; // Replace with your actual image path
 import { useAuth } from '../../auth';
 import Recipe from '../Recipe';
+import { Modal, Button, Form } from 'react-bootstrap';
 
 
 
-const LoggedInHome=()=>{
-  const[recipes,setRecipes]=useState([]);
-  useEffect(
-      ()=>{
+const LoggedInHome = () => {
+    const [recipes, setRecipes] = useState([]);
+    const [show, setShow] = useState(false);
+    const [currentRecipe, setCurrentRecipe] = useState({
+        id: '',
+        title: '',
+        description: '',
+        salary: 0
+    });
+
+    // 1. Fetch Recipes (GET)
+    const getAllRecipes = () => {
         fetch('/recipe/recipes')
-        .then(res=>res.json())
-        .then(data=>{
-          console.log(data)
-          setRecipes(data)
-        })
-        .catch(err=>console.log(err))
-      },[]
+            .then(res => res.json())
+            .then(data => {
+                setRecipes(data);
+            })
+            .catch(err => console.log(err));
+    };
 
-  );
-  return(
-    <>
-          <div className="recipe">
-            <h1>List of You Form</h1>
-            {
-              recipes.map(
-                (recipe)=>(
-                <Recipe title={recipe.title} description={recipe.description} />
-                )
-              )
-            }
-          </div>
-    </>
-  )
-}
+    useEffect(() => {
+        getAllRecipes();
+    }, []);
+
+    // 2. Open Modal with Data
+    const handleShow = (recipe) => {
+        setCurrentRecipe({
+            id: recipe.id,
+            title: recipe.title,
+            description: recipe.description,
+            salary: recipe.salary // Now capturing Salary!
+        });
+        setShow(true);
+    };
+
+    const handleClose = () => setShow(false);
+
+    // 3. Handle Form Changes
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setCurrentRecipe({ ...currentRecipe, [name]: value });
+    };
+
+    // 4. Submit Update (PUT)
+    const updateRecipe = () => {
+        const token = localStorage.getItem('REACT_TOKEN_AUTH_KEY');
+
+        const requestOptions = {
+            method: 'PUT',
+            headers: {
+                'content-type': 'application/json',
+                'Authorization': `Bearer ${JSON.parse(token)}`
+            },
+            body: JSON.stringify({
+                title: currentRecipe.title,
+                description: currentRecipe.description,
+                salary: currentRecipe.salary
+            })
+        };
+
+        fetch(`/recipe/recipe/${currentRecipe.id}`, requestOptions)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Updated:", data);
+                handleClose();
+                getAllRecipes(); // Refresh the list
+            })
+            .catch(err => console.log(err));
+    };
+
+    return (
+        <>
+            <div className="recipe container">
+                <h1 className="my-4">List of Your Forms</h1>
+                <div className="row">
+                    {recipes.map((recipe) => (
+                        <div className="col-md-4" key={recipe.id}>
+                            <Recipe
+                                title={recipe.title}
+                                description={recipe.description}
+                                onClick={() => handleShow(recipe)}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* EDIT MODAL */}
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Update Recipe: {currentRecipe.title}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Title</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="title"
+                                value={currentRecipe.title}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                name="description"
+                                value={currentRecipe.description}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Salary (Test 2026 Feature)</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="salary"
+                                value={currentRecipe.salary}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={updateRecipe}>
+                        Save Changes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </>
+    );
+};
 
 
 const LoggedOutHome =()=>{

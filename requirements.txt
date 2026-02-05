@@ -29,7 +29,7 @@ Django==2.2.24
 django-taggit==0.22.0
 executing==2.2.1
 filelock==3.14.0
-Flask==3.0.3
+Flask==2.0.3
 Flask-Cors==4.0.1
 Flask-JWT-Extended==4.6.0
 Flask-Migrate==4.0.7
@@ -53,7 +53,7 @@ ipython==9.7.0
 ipython_pygments_lexers==1.1.1
 itsdangerous==2.2.0
 jedi==0.19.2
-Jinja2==3.1.4
+Jinja2==3.0.3
 joblib==1.5.2
 jsonschema==4.22.0
 jsonschema-specifications==2023.12.1
@@ -142,7 +142,7 @@ virtualenv==20.26.2
 watchdog==6.0.0
 wcwidth==0.2.14
 websockets==16.0
-Werkzeug==3.0.3
+Werkzeug==2.0.3
 wheel==0.45.1
 wrapt==2.0.1
 youtube-dl==2021.12.17

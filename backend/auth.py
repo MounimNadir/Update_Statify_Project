@@ -1,12 +1,8 @@
-from flask_restx import Api, Resource, Namespace, fields
+from flask_restx import Resource, Namespace, fields
 from models import User
-from flask_jwt_extended import (JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity)
+from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity)
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, request, jsonify, make_response
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
+from flask import request
 
 auth_ns = Namespace('auth', description="A namespace for our Authentication")
 
@@ -37,7 +33,7 @@ class SignUp(Resource):
         db_user = User.query.filter_by(username=username).first()
         
         if db_user is not None:
-            return jsonify({"message": f"User with username {username} already exists."})
+            return {"message": f"User with username {username} already exists."}, 400
         
         new_user = User(
             username=data.get('username'),
@@ -47,7 +43,7 @@ class SignUp(Resource):
         
         new_user.save()
         
-        return jsonify({"message": "User created successfully"})
+        return {"message": "User created successfully"}, 201
 
 
 @auth_ns.route('/login')
@@ -62,11 +58,16 @@ class Login(Resource):
         db_user = User.query.filter_by(username=username).first()
         
         if db_user and check_password_hash(db_user.password, password):
-            access_token = create_access_token(identity=db_user.username )
+            access_token = create_access_token(identity=db_user.username)
             refresh_token = create_refresh_token(identity=db_user.username)
-            return jsonify({"access_token": access_token, "refresh_token": refresh_token})
+            
+            return {
+                "message": "Login Success",
+                "access_token": access_token,
+                "refresh_token": refresh_token
+            }, 200
         
-        return jsonify({"message": "Invalid credentials"}), 401
+        return {"message": "Invalid credentials"}, 401
 
 
 @auth_ns.route('/refresh')
@@ -75,4 +76,4 @@ class RefreshResource(Resource):
     def post(self):
         current_user = get_jwt_identity()
         new_access_token = create_access_token(identity=current_user)
-        return make_response(jsonify({"access_token": new_access_token}), 200)
+        return {"access_token": new_access_token}, 200
